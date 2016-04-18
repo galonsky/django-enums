@@ -25,7 +25,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
                 long_description=README,
                 keywords=['django', 'enum', 'field', 'status', 'state', 'choices', 'form', 'model'],
                 url='https://github.com/hikaruhorie/django-enums',
-                download_url='https://github.com/hikaruhorie/django-enums/tarball/{version}'.format(version=version),
+                download_url='https://github.com/hikaruhorie/django-enums/tarball/{version}'.format(version=__version__),
                 author='Hikaru Horie',
                 author_email='hikaru@horie.to',
                 platforms=['any'],
