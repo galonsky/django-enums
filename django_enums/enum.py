@@ -38,7 +38,7 @@ class EnumField(models.CharField):
         self.default_enum = kwargs.pop('default', None)
         kwargs['max_length'] = self.enum.get_max_length()
         kwargs['choices'] = self.enum.choices()
-        if self.default_enum is not None:
+        if isinstance(self.default_enum, self.enum):
             kwargs['default'] = self.default_enum.key
         super(EnumField, self).__init__(*args, **kwargs)
 
@@ -70,8 +70,7 @@ class EnumField(models.CharField):
                                 id='django-enum.fields.E002',
                                 ),
                         ]
-        else:
-            return []
+        return []
 
     def get_internal_type(self):
         return 'EnumField'
