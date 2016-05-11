@@ -73,7 +73,7 @@ class EnumField(models.CharField):
         else:
             return []
 
-    def get_initernal_type(self):
+    def get_internal_type(self):
         return 'EnumField'
 
     def from_db_value(self, value, expression, connection, context):
