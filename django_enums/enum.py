@@ -72,20 +72,28 @@ class EnumField(models.CharField):
                         ]
         return []
 
-    def get_internal_type(self):
-        return 'EnumField'
-
     def from_db_value(self, value, expression, connection, context):
+        if value is None:
+            return value
         return self.enum.get_by_key(value)
 
     def to_python(self, value):
         value = super(EnumField, self).to_python(value)
+        if isinstance(value, Enum) or value is None:
+            return value
         return self.enum.get_by_key(value)
 
+    def db_type(self, connection):
+        return 'char(%s)' % self.max_length
+
     def get_prep_value(self, value):
-        if value is None:
-            return value
-        return value.key
+        if isinstance(value, Enum):
+            return value.key
+        return value
+
+    def value_to_string(self, obj):
+        value = self.value_from_object(obj)
+        return self.get_prep_value(value)
 
     def deconstruct(self):
         name, path, args, kwargs = super(EnumField, self).deconstruct()
