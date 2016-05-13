@@ -5,8 +5,11 @@ from __future__ import division, print_function, absolute_import
 from django.db import models
 from enum import Enum as BaseEnum
 from itertools import ifilter
+from logging import getLogger
 import django
 
+
+logger = getLogger(__name__)
 
 class Enum(BaseEnum):
 
@@ -73,25 +76,36 @@ class EnumField(models.CharField):
         return []
 
     def from_db_value(self, value, expression, connection, context):
+        logger.debug('call: from_db_value value=%s%s' % (value, type(value)))
         if value is None:
+            logger.debug('from_db_value returns %s%s' % (value, type(value)))
             return value
+        logger.debug('from_db_value returns %s%s' % (self.enum.get_by_key(value), type(value)))
         return self.enum.get_by_key(value)
 
     def to_python(self, value):
         value = super(EnumField, self).to_python(value)
+        logger.debug('call: to_python value=%s%s' % (value, type(value)))
         if isinstance(value, Enum) or value is None:
+            logger.debug('to_python returns %s%s' % (value, type(value)))
             return value
+        logger.debug('to_python returns %s%s' % (self.enum.get_by_key(value), type(value)))
         return self.enum.get_by_key(value)
 
     def db_type(self, connection):
+        logger.debug('db_type returns char(%s)' % self.max_length)
         return 'char(%s)' % self.max_length
 
     def get_prep_value(self, value):
+        logger.debug('call: get_prep_value value=%s%s' % (value, type(value)))
         if isinstance(value, Enum):
+            logger.debug('get_prep_value returns %s%s' % (value.key, type(value)))
             return value.key
+        logger.debug('get_prep_value returns %s%s' % (value, type(value)))
         return value
 
     def value_to_string(self, obj):
+        logger.debug('call: value_to_string obj=%s' % obj)
         value = self.value_from_object(obj)
         return self.get_prep_value(value)
 
@@ -100,5 +114,5 @@ class EnumField(models.CharField):
         if django.VERSION >= (1, 9):
             kwargs['enum'] = self.enum
         else:
-            path = "django.db.models.fields.CharField"
+            path = 'django.db.models.fields.CharField'
         return name, path, args, kwargs
