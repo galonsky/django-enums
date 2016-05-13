@@ -36,6 +36,8 @@ class Enum(BaseEnum):
 
 class EnumField(models.CharField):
 
+    __metaclass__ = models.SubfieldBase
+
     def __init__(self, enum, *args, **kwargs):
         self.enum = enum
         self.default_enum = kwargs.pop('default', None)
