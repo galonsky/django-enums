@@ -84,7 +84,6 @@ class EnumField(models.CharField):
         return self.enum.get_by_key(value)
 
     def to_python(self, value):
-        value = super(EnumField, self).to_python(value)
         logger.debug('call: to_python value=%s%s' % (value, type(value)))
         if isinstance(value, Enum) or value is None:
             logger.debug('to_python returns %s%s' % (value, type(value)))
