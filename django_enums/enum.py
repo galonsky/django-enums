@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 
-from __future__ import division, print_function, absolute_import
+from __future__ import division, print_function, absolute_import, unicode_literals
 from django.db import models
 from enum import Enum as BaseEnum
 from itertools import ifilter
@@ -32,6 +32,12 @@ class Enum(BaseEnum):
     @classmethod
     def get_max_length(cls):
         return len(max(list(cls), key=(lambda x: len(x.key))).key)
+
+    def __str__(self):
+        return self.label
+
+    def __unicode__(self):
+        return unicode(self.label)
 
 
 class EnumField(models.CharField):
