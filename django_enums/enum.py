@@ -44,7 +44,7 @@ class Enum(BaseEnum):
         return unicode(self.label)
 
 
-class EnumField(six.with_metaclass(models.SubfieldBase, models.CharField)):
+class EnumField(models.CharField):
 
     def __init__(self, enum, *args, **kwargs):
         self.enum = enum
