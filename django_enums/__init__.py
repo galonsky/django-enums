@@ -90,14 +90,6 @@ class EnumField(models.CharField):
         logger.debug('to_python returns %s%s' % (ret, type(ret)))
         return ret
 
-    def get_internal_type(self):
-        logger.debug('call: get_internal_type')
-        return 'EnumField'
-
-    def db_type(self, connection):
-        logger.debug('db_type returns char(%s)' % self.max_length)
-        return 'char(%s)' % self.max_length
-
     def get_prep_value(self, value):
         logger.debug('call: get_prep_value value=%s%s' % (value, type(value)))
         if value is None:
