@@ -2,60 +2,35 @@
 # vim: set fileencoding=utf-8 :
 
 from __future__ import division, print_function, absolute_import
-from . import enum
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 import os
 import unittest
 
-class TestEnum(unittest.TestCase):
-
-    def setUp(self):
-        class MyEnum(enum.Enum):
-            __order__ = 'FOO BAR FOOBAR'
-            FOO = ('f', 'Foo')
-            BAR = ('b', 'Bar')
-            FOOBAR = ('fb', 'FooBar')
-
-        self.enum_class = MyEnum
-        self.max_length = 2
-        self.tuples = [
-                ('f', 'Foo'),
-                ('b', 'Bar'),
-                ('fb', 'FooBar'),
-                ]
-
-    def test_get_by_key(self):
-        self.assertEqual(self.enum_class.get_by_key('f'), self.enum_class.FOO)
-        self.assertEqual(self.enum_class.get_by_key('b'), self.enum_class.BAR)
-        self.assertEqual(self.enum_class.get_by_key('fb'), self.enum_class.FOOBAR)
-
-    def test_tuples(self):
-        self.assertEqual(self.enum_class.tuples(), self.tuples)
-
-    def test_choices(self):
-        self.assertEqual(self.enum_class.choices(), self.tuples)
-
-    def test_get_max_length(self, **kwargs):
-        self.assertEqual(self.enum_class.get_max_length(), self.max_length)
-
+import django_enums
+import enum
 
 
 class TestEnumField(unittest.TestCase):
 
     def setUp(self):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
+        import django
+        django.setup()
 
         class MyEnum(enum.Enum):
-            __order__ = 'FOO BAR FOOBAR'
-            FOO = ('f', 'Foo')
-            BAR = ('b', 'Bar')
-            FOOBAR = ('fb', 'FooBar')
+            FOO = 'Foo'
+            BAR = 'Bar'
+            FOOBAR = 'FooBar'
 
         class MyModel(models.Model):
-            enum = enum.EnumField(
-                    MyEnum,
-                    default=MyEnum.BAR,
-                    )
+            enum = django_enums.EnumField(
+                MyEnum,
+                default=MyEnum.BAR,
+            )
+
+            class Meta:
+                app_label = 'foo'
 
         self.enum_class = MyEnum
         self.model_class = MyModel
@@ -66,8 +41,31 @@ class TestEnumField(unittest.TestCase):
                 ('fb', 'FooBar'),
                 ]
 
-    def test___init__(self):
-        self.assertEqual(self.enum_class, self.model_class.enum)
+    def test_create_object(self):
+        obj = self.model_class(enum=self.enum_class.BAR)
+        assert obj.enum == self.enum_class.BAR
+        errors = obj.check()
+        assert len(errors) == 0
+
+    def test_create_object_with_default(self):
+        obj = self.model_class()
+        assert obj.enum == self.enum_class.BAR
+        errors = obj.check()
+        assert len(errors) == 0
+
+    def test_create_object_with_invalid_default(self):
+        class MyModelWithInvalidDefault(models.Model):
+            enum = django_enums.EnumField(
+                self.enum_class,
+                default='bar',
+            )
+
+            class Meta:
+                app_label = 'foo'
+        self.model_class = MyModelWithInvalidDefault
+        obj = self.model_class()
+        errors = obj.check()
+        assert len(errors) == 1
 
 
 if __name__ == '__main__':

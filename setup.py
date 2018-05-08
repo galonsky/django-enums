@@ -12,11 +12,9 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
         # allow setup.py to be run from any path
         os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-        execfile('django_enums/__init__.py')
-
         setup(
                 name='django-enums',
-                version=__version__,
+                version='0.1.8',
                 include_package_data=True,
                 packages=find_packages(exclude=['tests*', 'docs*']),
                 install_requires=['django'],
@@ -25,7 +23,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
                 long_description=README,
                 keywords=['django', 'enum', 'field', 'status', 'state', 'choices', 'form', 'model'],
                 url='https://github.com/hikaruhorie/django-enums',
-                download_url='https://github.com/hikaruhorie/django-enums/tarball/{version}'.format(version=__version__),
+                download_url='https://github.com/hikaruhorie/django-enums/tarball/{version}'.format(version='0.1.8'),
                 author='Hikaru Horie',
                 author_email='hikaru@horie.to',
                 platforms=['any'],
