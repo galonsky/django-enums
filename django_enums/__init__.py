@@ -100,6 +100,8 @@ class EnumField(models.CharField):
 
     def get_prep_value(self, value):
         logger.debug('call: get_prep_value value=%s%s' % (value, type(value)))
+        if value is None:
+            return value
         return value.name
 
     def value_to_string(self, obj):
