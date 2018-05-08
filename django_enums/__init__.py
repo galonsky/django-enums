@@ -74,7 +74,7 @@ class EnumField(models.CharField):
         return []
 
     def _check_max_length_accommodates_enum(self):
-        if self.max_length and self.max_length < self.max_length(self.enum):
+        if self.max_length and self.max_length < self._max_length(self.enum):
             return [
                 checks.Error(
                     "max_length must be equal or greater than the longest enum name",
