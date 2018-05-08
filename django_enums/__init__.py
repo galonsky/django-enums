@@ -33,7 +33,8 @@ class EnumField(models.CharField):
         self.enum = enum
         self.default_enum = kwargs.get('default', None)
 
-        kwargs['max_length'] = self._max_length(enum)
+        if 'max_length' not in kwargs:
+            kwargs['max_length'] = self._max_length(enum)
         kwargs['choices'] = self._choices(enum)
 
         super(EnumField, self).__init__(*args, **kwargs)
@@ -43,6 +44,7 @@ class EnumField(models.CharField):
         errors = super(EnumField, self).check(**kwargs)
         errors.extend(self._check_enum_attribute(**kwargs))
         errors.extend(self._check_default_attribute(**kwargs))
+        errors.extend(self._check_max_length_accommodates_enum())
         return errors
 
     def _check_enum_attribute(self, **kwargs):
@@ -71,6 +73,18 @@ class EnumField(models.CharField):
                         ]
         return []
 
+    def _check_max_length_accommodates_enum(self):
+        if self.max_length and self.max_length < self.max_length(self.enum):
+            return [
+                checks.Error(
+                    "max_length must be equal or greater than the longest enum name",
+                    obj=self,
+                    id='django-enum.fields.E003',
+                ),
+            ]
+        else:
+            return []
+
     def from_db_value(self, value, expression, connection, context):
         logger.debug('call: from_db_value value=%s%s' % (value, type(value)))
         return self.to_python(value)
@@ -94,15 +108,18 @@ class EnumField(models.CharField):
         logger.debug('call: get_prep_value value=%s%s' % (value, type(value)))
         if value is None:
             return value
+        if not isinstance(value, self.enum):
+            raise ValidationError('{} is not an instance of {}'.format(
+                value, self.enum
+            ))
         return value.name
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
-        return self.get_db_prep_value(value)
+        return self.get_prep_value(value)
 
     def deconstruct(self):
         name, path, args, kwargs = super(EnumField, self).deconstruct()
-        del kwargs['max_length']
-        del kwargs['choices']
+
         kwargs['enum'] = self.enum
         return name, path, args, kwargs
