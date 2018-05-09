@@ -3,14 +3,11 @@
 
 from __future__ import division, print_function, absolute_import, unicode_literals
 import enum
-from django import forms
 from django.core import checks
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.forms import TypedChoiceField, fields
-from django.utils.functional import curry
+from django.forms import fields
 from logging import getLogger
-import django
 
 __version__ = '0.1.8'
 
@@ -25,7 +22,6 @@ class EnumTypedChoiceField(fields.TypedChoiceField):
 
     def prepare_value(self, value: enum.Enum):
         return value.name
-
 
 
 class EnumField(models.Field):
@@ -59,23 +55,9 @@ class EnumField(models.Field):
     def check(self, **kwargs):
         logger.debug('call: check kwargs=%s' % kwargs)
         errors = super(EnumField, self).check(**kwargs)
-        errors.extend(self._check_enum_attribute(**kwargs))
         errors.extend(self._check_default_attribute(**kwargs))
         errors.extend(self._check_max_length_accommodates_enum())
         return errors
-
-    def _check_enum_attribute(self, **kwargs):
-        logger.debug('call: _check_enum_attribute kwargs=%s' % kwargs)
-        if self.enum is None:
-            return [
-                    checks.Error(
-                            "EnumFields must define a 'enum' attribute.",
-                            obj=self,
-                            id='django-enum.fields.E001',
-                            ),
-                    ]
-        else:
-            return []
 
     def _check_default_attribute(self, **kwargs):
         logger.debug('call: _check_default_attribute kwargs=%s' % kwargs)
@@ -143,7 +125,6 @@ class EnumField(models.Field):
             'choices_form_class': EnumTypedChoiceField,
             'choices': self._form_choices(self.enum),
             'empty_value': None,
-            #'coerce': lambda name: self.enum[name]
         }
         defaults.update(kwargs)
         return super(EnumField, self).formfield(**defaults)
