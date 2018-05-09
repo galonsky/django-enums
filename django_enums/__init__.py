@@ -18,7 +18,7 @@ __version__ = '0.1.8'
 logger = getLogger(__name__)
 
 
-class EnumField(models.CharField):
+class EnumField(models.Field):
 
     @staticmethod
     def _max_length(enum_klass):
