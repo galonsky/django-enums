@@ -26,7 +26,7 @@ class EnumField(models.CharField):
     @staticmethod
     def _choices(enum_klass):
         return (
-            (member, member.value) for member in enum_klass
+            (member.name, member.value) for member in enum_klass
         )
 
     def __init__(self, enum, *args, **kwargs):
