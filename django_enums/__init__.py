@@ -25,7 +25,13 @@ class EnumField(models.CharField):
         return len(max(list(enum_klass), key=(lambda x: len(x.name))).name)
 
     @staticmethod
-    def _choices(enum_klass):
+    def _model_choices(enum_klass):
+        return (
+            (member, member.value) for member in enum_klass
+        )
+
+    @staticmethod
+    def _form_choices(enum_klass):
         return (
             (member.name, member.value) for member in enum_klass
         )
@@ -36,7 +42,7 @@ class EnumField(models.CharField):
 
         if 'max_length' not in kwargs:
             kwargs['max_length'] = self._max_length(enum)
-        kwargs['choices'] = self._choices(enum)
+        kwargs['choices'] = self._model_choices(enum)
 
         super(EnumField, self).__init__(*args, **kwargs)
 
@@ -124,9 +130,9 @@ class EnumField(models.CharField):
         # while letting the caller override them.
         defaults = {
             'form_class': TypedChoiceField,
-            'choices': self._choices(self.enum),
+            'choices': self._form_choices(self.enum),
             'empty_value': None,
-            'coerce': lambda name: self.enum[name]
+            #'coerce': lambda name: self.enum[name]
         }
         defaults.update(kwargs)
         return super(EnumField, self).formfield(**defaults)
