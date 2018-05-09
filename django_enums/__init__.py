@@ -7,7 +7,7 @@ from django import forms
 from django.core import checks
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.forms import TypedChoiceField
+from django.forms import TypedChoiceField, fields
 from django.utils.functional import curry
 from logging import getLogger
 import django
@@ -16,6 +16,16 @@ __version__ = '0.1.8'
 
 
 logger = getLogger(__name__)
+
+
+class EnumTypedChoiceField(fields.TypedChoiceField):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def prepare_value(self, value: enum.Enum):
+        return value.name
+
 
 
 class EnumField(models.Field):
@@ -129,7 +139,7 @@ class EnumField(models.Field):
         # This is a fairly standard way to set up some defaults
         # while letting the caller override them.
         defaults = {
-            'form_class': TypedChoiceField,
+            'form_class': EnumTypedChoiceField,
             'choices': self._form_choices(self.enum),
             'empty_value': None,
             #'coerce': lambda name: self.enum[name]
