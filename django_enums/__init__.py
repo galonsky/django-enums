@@ -52,6 +52,9 @@ class EnumField(models.Field):
 
         super(EnumField, self).__init__(*args, **kwargs)
 
+    def get_internal_type(self):
+        return "CharField"
+
     def check(self, **kwargs):
         logger.debug('call: check kwargs=%s' % kwargs)
         errors = super(EnumField, self).check(**kwargs)
