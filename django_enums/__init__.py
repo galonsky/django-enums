@@ -140,6 +140,7 @@ class EnumField(models.Field):
         # while letting the caller override them.
         defaults = {
             'form_class': EnumTypedChoiceField,
+            'choices_form_class': EnumTypedChoiceField,
             'choices': self._form_choices(self.enum),
             'empty_value': None,
             #'coerce': lambda name: self.enum[name]
