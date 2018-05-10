@@ -26,20 +26,17 @@ class EnumTypedChoiceField(fields.TypedChoiceField):
 
 class EnumField(models.Field):
 
-    @staticmethod
-    def _max_length(enum_klass):
-        return len(max(list(enum_klass), key=(lambda x: len(x.name))).name)
+    def _max_length(self):
+        return len(max(list(self.enum), key=(lambda x: len(x.name))).name)
 
-    @staticmethod
-    def _model_choices(enum_klass):
+    def _model_choices(self):
         return (
-            (member, member.value) for member in enum_klass
+            (member, member.value) for member in self.enum
         )
 
-    @staticmethod
-    def _form_choices(enum_klass):
+    def _form_choices(self):
         return (
-            (member.name, member.value) for member in enum_klass
+            (member.name, member.value) for member in self.enum
         )
 
     def __init__(self, enum, *args, **kwargs):
@@ -47,8 +44,8 @@ class EnumField(models.Field):
         self.default_enum = kwargs.get('default', None)
 
         if 'max_length' not in kwargs:
-            kwargs['max_length'] = self._max_length(enum)
-        kwargs['choices'] = self._model_choices(enum)
+            kwargs['max_length'] = self._max_length()
+        kwargs['choices'] = self._model_choices()
 
         super(EnumField, self).__init__(*args, **kwargs)
 
@@ -76,7 +73,7 @@ class EnumField(models.Field):
         return []
 
     def _check_max_length_accommodates_enum(self):
-        if self.max_length and self.max_length < self._max_length(self.enum):
+        if self.max_length and self.max_length < self._max_length():
             return [
                 checks.Error(
                     "max_length must be equal or greater than the longest enum name",
@@ -126,7 +123,7 @@ class EnumField(models.Field):
         defaults = {
             'form_class': EnumTypedChoiceField,
             'choices_form_class': EnumTypedChoiceField,
-            'choices': self._form_choices(self.enum),
+            'choices': self._form_choices(),
             'empty_value': None,
         }
         defaults.update(kwargs)
