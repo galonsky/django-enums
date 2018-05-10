@@ -7,7 +7,7 @@ django-enums is a simple EnumField for Django models.
 Installation
 ------------
 
->>> pip install django-enums
+    pip install django-enums
 
 
 Usage
