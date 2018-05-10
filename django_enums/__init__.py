@@ -8,8 +8,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms import fields
 
-__version__ = '0.1.8'
-
 
 class EnumTypedChoiceField(fields.TypedChoiceField):
     """

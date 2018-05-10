@@ -6,7 +6,7 @@ from __future__ import division, print_function, absolute_import
 import os
 from setuptools import find_packages, setup
 
-with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
+with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
         README = readme.read()
 
         # allow setup.py to be run from any path
@@ -14,7 +14,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
 
         setup(
                 name='django-enums',
-                version='0.1.8',
+                version='0.2.0',
                 include_package_data=True,
                 packages=find_packages(exclude=['tests*', 'docs*']),
                 install_requires=['django'],
@@ -22,9 +22,9 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
                 description='A simple Enum class and EnumField for Django models.',
                 long_description=README,
                 keywords=['django', 'enum', 'field', 'status', 'state', 'choices', 'form', 'model'],
-                url='https://github.com/hikaruhorie/django-enums',
-                download_url='https://github.com/hikaruhorie/django-enums/tarball/{version}'.format(version='0.1.8'),
-                author='Hikaru Horie',
+                url='https://github.com/galonsky/django-enums',
+                download_url='https://github.com/galonsky/django-enums/tarball/{version}'.format(version='0.2.0'),
+                author='Hikaru Horie, Alex Galonsky',
                 author_email='hikaru@horie.to',
                 platforms=['any'],
                 classifiers=[
