@@ -1,9 +1,8 @@
 django-enums
 ============
 
-django-enums is a simple Enum class and EnumField for Django models.
-Enum class inherits Enum class in the default enum module.
-EnumFiled class inherits Charfield.
+django-enums is a simple EnumField for Django models.
+
 
 Installation
 ------------
@@ -14,18 +13,17 @@ Installation
 Usage
 -----
 
-Inherit Enum class and set it to EnumField.enum.::
+Uses the native python enum.Enum class
+Uses the enum `.name` for serialization and enum `.value` for display
 
     from django.db import models
-    from django_enums import enum
+    import enum
 
     class MyEnum(enum.Enum):
 
-        __order__ = 'FOO BAR FOOBAR' # for python 2
-
-        FOO = ('f', 'Foo')
-        BAR = ('b', 'Bar')
-        FOOBAR = ('fb', 'FooBar')
+        FOO = 'Foo'
+        BAR = 'Bar'
+        FOOBAR = 'FooBar'
 
 
     class MyModel(models.Model):
