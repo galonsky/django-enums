@@ -3,6 +3,8 @@
 
 from __future__ import division, print_function, absolute_import, unicode_literals
 import enum
+
+import six
 from django.core import checks
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -34,7 +36,6 @@ class EnumField(models.Field):
     as the value
 
     Uses the enum members to determine both the `choices` for the field
-    and the max_length of the underlying column (unless overridden)
 
     This is purposefully not a subclass of CharField since CharField
     adds validation on max_length that doesn't quite work with enums
@@ -68,8 +69,6 @@ class EnumField(models.Field):
         self.enum = enum
         self.default_enum = kwargs.get('default', None)
 
-        if 'max_length' not in kwargs:
-            kwargs['max_length'] = self._max_length()
         kwargs['choices'] = self._model_choices()
 
         super(EnumField, self).__init__(*args, **kwargs)
@@ -83,8 +82,30 @@ class EnumField(models.Field):
     def check(self, **kwargs):
         errors = super(EnumField, self).check(**kwargs)
         errors.extend(self._check_default_attribute(**kwargs))
+        errors.extend(self._check_max_length_attribute(**kwargs))
         errors.extend(self._check_max_length_accommodates_enum())
         return errors
+
+    # This is lifted from CharField
+    def _check_max_length_attribute(self, **kwargs):
+        if self.max_length is None:
+            return [
+                checks.Error(
+                    "CharFields must define a 'max_length' attribute.",
+                    obj=self,
+                    id='fields.E120',
+                )
+            ]
+        elif not isinstance(self.max_length, six.integer_types) or self.max_length <= 0:
+            return [
+                checks.Error(
+                    "'max_length' must be a positive integer.",
+                    obj=self,
+                    id='fields.E121',
+                )
+            ]
+        else:
+            return []
 
     def _check_default_attribute(self, **kwargs):
         if self.default_enum is not None:

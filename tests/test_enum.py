@@ -28,6 +28,7 @@ class TestEnumField(unittest.TestCase):
             enum = django_enums.EnumField(
                 MyEnum,
                 default=MyEnum.BAR,
+                max_length=32,
             )
 
             class Meta:
@@ -38,7 +39,9 @@ class TestEnumField(unittest.TestCase):
         self.field = MyModel._meta.get_field('enum')
 
     def test_create_object(self):
-        obj = self.model_class(enum=self.enum_class.BAR)
+        obj = self.model_class(
+            enum=self.enum_class.BAR,
+        )
         assert obj.enum == self.enum_class.BAR
         errors = obj.check()
         assert len(errors) == 0
@@ -54,6 +57,31 @@ class TestEnumField(unittest.TestCase):
         assert obj.enum == self.enum_class.BAR
         errors = obj.check()
         assert len(errors) == 0
+
+    def test_field_with_missing_max_length(self):
+        class MyModelWithInvalidMaxLength(models.Model):
+            enum = django_enums.EnumField(
+                self.enum_class,
+            )
+
+            class Meta:
+                app_label = 'foo'
+        errors = MyModelWithInvalidMaxLength.check()
+        assert len(errors) == 1
+        assert errors[0].id == 'fields.E120'
+
+    def test_field_with_zero_max_length(self):
+        class MyModelWithInvalidMaxLength(models.Model):
+            enum = django_enums.EnumField(
+                self.enum_class,
+                max_length=0,
+            )
+
+            class Meta:
+                app_label = 'foo'
+        errors = MyModelWithInvalidMaxLength.check()
+        assert len(errors) == 1
+        assert errors[0].id == 'fields.E121'
 
     def test_field_with_invalid_max_length(self):
         class MyModelWithInvalidMaxLength(models.Model):
@@ -73,6 +101,7 @@ class TestEnumField(unittest.TestCase):
             enum = django_enums.EnumField(
                 self.enum_class,
                 default='bar',
+                max_length=32,
             )
 
             class Meta:
